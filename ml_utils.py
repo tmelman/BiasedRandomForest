@@ -16,7 +16,7 @@ def get_stratified_train_test_split(y, ntrain):
     return train_indices, test_indices
 
 def get_stratified_kfold_cval_splits(y, k=10):
-    y = y.flatten()
+    y = y.values.flatten()
     n_each_fold = int(len(y)/k)
     # indices_left = np.array(range(len(y)))
     fold_membership = np.zeros(len(y))-1
@@ -31,41 +31,50 @@ def precision(labels, predictions):
     # true positives/predicted positives
     true_positives = sum(np.logical_and(labels, predictions))
     predicted_positives = sum(predictions)
+    if predicted_positives==0:
+        return 0
     return true_positives/predicted_positives
 
 def recall(labels, predictions):
     # true positives/labeled positives
     true_positives = sum(np.logical_and(labels, predictions))
-    positives = sum(labels)
-    return true_positives/positives
+    labeled_positives = sum(labels)
+    if labeled_positives==0:
+        return 0
+    return true_positives/labeled_positives
 
 def sensitivity(labels, predictions):
     return recall(labels, predictions)
 
 def specificity(labels, predictions):
-    false_positives = sum(np.logical_and(labels, 1-predictions))
-    negatives = sum(1-predictions)
-    return false_positives/negatives
+    true_negatives = sum(np.logical_and(1-labels, 1-predictions))
+    labeled_negatives = sum(1-labels)
+    if labeled_negatives==0:
+        return 0
+    return true_negatives/labeled_negatives
 
 def roc_curve(labels, prediction_values):
-    curve = []
-    for param in range(101):
-        predictions = prediction_values>param/100.0
+    curve = [[1,1]]
+    for p in range(101):
+        param = p/100
+        predictions = prediction_values>param
         ss_point = [1-specificity(labels, predictions), sensitivity(labels, predictions)]
         curve.append(ss_point)
     return curve
 
 def pr_curve(labels, prediction_values):
-    curve = []
-    for param in range(101):
-        predictions = prediction_values>param/100.0
+    curve = [[1,1]]
+    for p in range(101):
+        param = p/100
+        predictions = prediction_values>param
         pr_point = [recall(labels, predictions), precision(labels, predictions)]
         curve.append(pr_point)
     return curve
 
 def auc(curve):
-    x=curve[:,0]
-    y=curve[:,1]
+    sorted_inds = np.argsort(curve[:,0]) # sort along x
+    x=curve[sorted_inds,0]
+    y=curve[sorted_inds,1]
     widths = x[1:]-x[:-1]
     heights = (y[1:]+y[:-1])/2
-    return widths * heights
+    return sum(widths * heights)

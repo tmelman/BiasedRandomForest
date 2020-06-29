@@ -1,7 +1,7 @@
 # This is an implementation of random forest.
 import attr
 import numpy as np
-import scipy as scp
+from scipy import spatial
 import pandas as pd
 from typing import Callable, List, TypeVar
 
@@ -198,7 +198,7 @@ class BiasedRandomForest():
         min_set_y = self.data_y.iloc[min_inds]
         maj_set_y = self.data_y.iloc[maj_inds]
         # 2. get distance of majority class members from minority class members
-        dist_mat = scp.spatial.distance_matrix(min_set_x.values, maj_set_x.values) 
+        dist_mat = spatial.distance_matrix(min_set_x.values, maj_set_x.values) 
         # 3. get the k nearest neighbors to each minority class member
         knn = np.unique(np.array([np.argsort(i)[:k] for i in dist_mat]).flatten())
         maj_set_knn_x = maj_set_x.iloc[knn]

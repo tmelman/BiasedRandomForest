@@ -53,8 +53,6 @@ for fold in np.unique(folds):
     for i in range(len(x_te)):
         dat = x_te.iloc[i]
         predictions_te.append(braf.predict(dat))
-    predictions_tr = braf.predict(x_tr)
-    predictions_te = braf.predict(x_te)
     labels_tr = y_tr.values.flatten()
     labels_te = y_te.values.flatten()
     predictions_tr = np.array(predictions_tr).flatten()

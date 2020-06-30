@@ -60,15 +60,17 @@ def roc_curve(labels, prediction_values):
         predictions = prediction_values>param
         ss_point = [1-specificity(labels, predictions), sensitivity(labels, predictions)]
         curve.append(ss_point)
+    curve.append([0,0])
     return curve
 
 def pr_curve(labels, prediction_values):
-    curve = [[1,1]]
+    curve = [[0,0]]
     for p in range(101):
         param = p/100
         predictions = prediction_values>param
         pr_point = [recall(labels, predictions), precision(labels, predictions)]
         curve.append(pr_point)
+    curve.append([1,1])
     return curve
 
 def auc(curve):
